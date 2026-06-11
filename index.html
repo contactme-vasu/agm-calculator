@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AGM Calculator — Companies Act, 2013</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f4f8;
+      color: #1a2332;
+      min-height: 100vh;
+      padding: 32px 16px 64px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    header h1 {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #1a2332;
+      letter-spacing: -0.3px;
+    }
+
+    header p {
+      margin-top: 6px;
+      font-size: 0.875rem;
+      color: #5a6a7e;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.06);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #5a6a7e;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    input[type="date"] {
+      height: 44px;
+      border: 1.5px solid #d0d8e4;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 0.95rem;
+      color: #1a2332;
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+      background: #fff;
+    }
+
+    input[type="date"]:focus { border-color: #3b6ef8; }
+
+    button {
+      height: 44px;
+      padding: 0 28px;
+      background: #3b6ef8;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      white-space: nowrap;
+    }
+
+    button:hover { background: #2d5de0; }
+    button:active { transform: scale(0.98); }
+
+    /* Info boxes */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .info-box {
+      background: #f7f9fc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+
+    .info-box .label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #7a8ea8;
+      margin-bottom: 4px;
+    }
+
+    .info-box .value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1a2332;
+    }
+
+    .info-box.highlight {
+      background: #eef3ff;
+      border-color: #c0cff8;
+    }
+
+    .info-box.highlight .value { color: #2d52c4; }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    thead th {
+      background: #f0f4f8;
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #5a6a7e;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    tbody tr { border-bottom: 1px solid #edf0f5; transition: background .1s; }
+    tbody tr:hover { background: #f7f9fc; }
+    tbody tr:last-child { border-bottom: none; }
+
+    td {
+      padding: 11px 14px;
+      color: #2c3e50;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    td.agm-num {
+      font-weight: 700;
+      color: #3b6ef8;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    td.fy-label {
+      font-weight: 600;
+      color: #1a2332;
+    }
+
+    td.deadline {
+      font-weight: 600;
+      color: #15803d;
+    }
+
+    td.deadline.first {
+      color: #b45309;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .badge-first { background: #fff3cd; color: #92400e; }
+    .badge-regular { background: #dcfce7; color: #166534; }
+    .badge-current { background: #dbeafe; color: #1e40af; }
+
+    /* Note banners */
+    .note {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 0.82rem;
+      color: #78350f;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .note strong { color: #92400e; }
+
+    /* hidden */
+    #result { display: none; }
+
+    .section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #7a8ea8;
+      margin-bottom: 14px;
+    }
+
+    .rules-list {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .rules-list li {
+      font-size: 0.82rem;
+      color: #4a5568;
+      padding-left: 18px;
+      position: relative;
+      line-height: 1.55;
+    }
+
+    .rules-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: #3b6ef8;
+      font-weight: 700;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      margin-top: 36px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>AGM Calculator</h1>
+    <p>Annual General Meeting schedule under the Companies Act, 2013 &nbsp;|&nbsp; Section 96</p>
+  </header>
+
+  <div class="card">
+    <div class="input-row">
+      <div class="field">
+        <label for="incDate">Date of Incorporation</label>
+        <input type="date" id="incDate" />
+      </div>
+      <button onclick="calculate()">Calculate AGMs</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="card">
+    <p class="section-title">Key Rules — Companies Act, 2013</p>
+    <ul class="rules-list">
+      <li>Every company except a One Person Company (OPC) must hold an AGM every year [Sec 96(1)].</li>
+      <li>The meeting must be specifically called and identified as an "Annual General Meeting" in the notice.</li>
+      <li><strong>First AGM:</strong> must be held within <strong>9 months</strong> from the close of the first financial year.</li>
+      <li><strong>Subsequent AGMs:</strong> must be held within <strong>6 months</strong> from the close of each financial year.</li>
+      <li>The gap between any two consecutive AGMs must not exceed <strong>15 months</strong>.</li>
+      <li>Financial year ends on <strong>31 March</strong> every year. If incorporated on or after 1 January, the first FY extends to 31 March of the <em>following</em> year.</li>
+      <li>Registrar of Companies may grant an extension of up to <strong>3 months</strong> for holding an AGM (other than the first AGM), on application in Form GNL-1.</li>
+      <li>If the first AGM is held within the prescribed period, no AGM is required in the <strong>year of incorporation</strong>.</li>
+    </ul>
+  </div>
+</div>
+
+<footer>For reference only. Verify with a qualified Company Secretary for compliance advice.</footer>
+
+<script>
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function fmt(date) {
+    return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  }
+
+  function ordinal(n) {
+    const s = ['th','st','nd','rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  // Add N months to a date, clamping to last day of target month
+  function addMonths(date, months) {
+    const d = new Date(date);
+    const totalMonths = d.getMonth() + months;
+    const targetYear  = d.getFullYear() + Math.floor(totalMonths / 12);
+    const targetMonth = ((totalMonths % 12) + 12) % 12;
+    const lastDay = new Date(targetYear, targetMonth + 1, 0).getDate();
+    return new Date(targetYear, targetMonth, Math.min(d.getDate(), lastDay));
+  }
+
+  function getFirstFYEnd(incDate) {
+    // FY ends 31 March every year.
+    // If incorporated on or after 1 Jan → first FY ends 31 March of the FOLLOWING year.
+    // For April–December: next 31 March is year+1 anyway.
+    // Result is always 31 March of (incYear + 1).
+    return new Date(incDate.getFullYear() + 1, 2, 31);
+  }
+
+  function fyLabel(fyEndDate) {
+    const endYear  = fyEndDate.getFullYear();        // e.g. 2015
+    const startYear = endYear - 1;                   // e.g. 2014
+    return `${startYear}-${String(endYear).slice(-2)}`; // "2014-15"
+  }
+
+  function calculate() {
+    const input = document.getElementById('incDate').value;
+    if (!input) { alert('Please enter the date of incorporation.'); return; }
+
+    const incDate = new Date(input + 'T00:00:00');
+    const today   = new Date();
+    today.setHours(0,0,0,0);
+    const currentFYEndYear = today.getMonth() < 3 ? today.getFullYear() : today.getFullYear() + 1;
+
+    const firstFYEnd  = getFirstFYEnd(incDate);
+    const lastFYEnd   = new Date(2031, 2, 31); // FY 2030-31
+
+    // Build AGM rows
+    const rows = [];
+    let fyEnd  = firstFYEnd;
+    let agmNum = 1;
+
+    while (fyEnd <= lastFYEnd) {
+      const deadline = agmNum === 1
+        ? addMonths(fyEnd, 9)   // First AGM: 9 months
+        : addMonths(fyEnd, 6);  // Subsequent: 6 months
+
+      const fyEndYear = fyEnd.getFullYear();
+      const isCurrent = fyEndYear === currentFYEndYear;
+
+      rows.push({ agmNum, fyEnd: new Date(fyEnd), deadline, isCurrent, isFirst: agmNum === 1 });
+
+      fyEnd = new Date(fyEndYear + 1, 2, 31);
+      agmNum++;
+    }
+
+    // Year of incorporation note
+    const incYear = incDate.getFullYear();
+    const firstAGMDeadline = rows[0].deadline;
+    const noAGMInIncYear = firstAGMDeadline.getFullYear() > incYear || rows.length > 0;
+
+    // Build HTML
+    let html = '';
+
+    // Info boxes
+    html += `<div class="card">`;
+    html += `<p class="section-title">Company Details</p>`;
+    html += `<div class="info-grid">`;
+    html += infoBox('Date of Incorporation', fmt(incDate));
+    html += infoBox('First Financial Year', fyLabel(firstFYEnd));
+    html += infoBox('First FY Closes On', fmt(firstFYEnd));
+    html += infoBox('First AGM Deadline', fmt(rows[0].deadline), true);
+    html += infoBox('Total AGMs (till 2030-31)', rows.length.toString());
+    html += `</div>`;
+
+    // Incorporation year note
+    html += `<div class="note">
+      <strong>Year of Incorporation (${incYear}):</strong> If the first AGM is held on or before
+      <strong>${fmt(rows[0].deadline)}</strong>, the company is <em>not required</em> to hold any AGM
+      in ${incYear} (second proviso to Section 96(1)).
+    </div>`;
+
+    html += `</div>`;
+
+    // Table
+    html += `<div class="card">`;
+    html += `<p class="section-title">AGM Schedule — First FY to FY 2030-31</p>`;
+    html += `<div class="table-wrap"><table>`;
+    html += `<thead><tr>
+      <th>AGM No.</th>
+      <th>Financial Year</th>
+      <th>FY Closes On</th>
+      <th>Basis</th>
+      <th>Last Date to Hold AGM</th>
+      <th>Type</th>
+    </tr></thead><tbody>`;
+
+    for (const r of rows) {
+      const deadlineClass = r.isFirst ? 'deadline first' : 'deadline';
+      const basis = r.isFirst ? '9 months from FY end' : '6 months from FY end';
+      let badge = r.isFirst
+        ? '<span class="badge badge-first">1st AGM</span>'
+        : '<span class="badge badge-regular">Regular</span>';
+      if (r.isCurrent) badge += ' <span class="badge badge-current">Current FY</span>';
+
+      html += `<tr>
+        <td class="agm-num">${ordinal(r.agmNum)} AGM</td>
+        <td class="fy-label">${fyLabel(r.fyEnd)}</td>
+        <td>${fmt(r.fyEnd)}</td>
+        <td style="color:#5a6a7e;font-size:0.8rem">${basis}</td>
+        <td class="${deadlineClass}">${fmt(r.deadline)}</td>
+        <td>${badge}</td>
+      </tr>`;
+    }
+
+    html += `</tbody></table></div>`;
+
+    // 15-month gap note
+    html += `<div class="note" style="margin-top:18px;margin-bottom:0">
+      <strong>15-Month Gap Rule:</strong> In addition to the above deadlines, the gap between any two
+      consecutive AGMs must not exceed <strong>15 months</strong> [Sec 96(1)]. The dates above are
+      based on the FY-end rule and are typically the stricter constraint. Verify against the actual
+      date of the previous AGM for compliance.
+    </div>`;
+
+    html += `</div>`;
+
+    const resultEl = document.getElementById('result');
+    resultEl.innerHTML = html;
+    resultEl.style.display = 'block';
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function infoBox(label, value, highlight = false) {
+    return `<div class="info-box${highlight ? ' highlight' : ''}">
+      <div class="label">${label}</div>
+      <div class="value">${value}</div>
+    </div>`;
+  }
+
+  // Allow Enter key on date input
+  document.getElementById('incDate').addEventListener('keydown', e => {
+    if (e.key === 'Enter') calculate();
+  });
+</script>
+</body>
+</html>
